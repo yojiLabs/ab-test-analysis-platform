@@ -44,11 +44,13 @@ venv\Scripts\Activate.ps1        # Windows PowerShell
 pip install -r requirements.txt
 streamlit run app/app.py
 ```
-```
-or go to
-https://ab-test-analysis-platform-yojilabs.streamlit.app/
 
-```
+### Try the Live Demo
+
+Or you can try the app here:
+
+**[Launch the A/B Test Analysis Platform →](https://ab-test-analysis-platform-yojilabs.streamlit.app/)**
+
 
 ## Case study
 
