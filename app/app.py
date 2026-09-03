@@ -152,6 +152,22 @@ h1, h2, h3 {
     letter-spacing: 0.05em;
 }
 
+/* Report and chart panels */
+[data-testid="stVerticalBlockBorderWrapper"] {
+    border: 1px solid var(--ink) !important;
+    border-radius: 0 !important;
+    background: var(--paper) !important;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.06);
+}
+[data-testid="stPlotlyChart"] {
+    border: 1px solid var(--hairline);
+    padding: 10px 10px 0;
+    background: var(--paper);
+}
+[data-testid="stPlotlyChart"] > div {
+    border-radius: 0 !important;
+}
+
 /* Guardrail list */
 .guardrail-row {
     display: flex;
@@ -471,14 +487,16 @@ def render_trend_chart(df: pd.DataFrame):
             font=dict(family="Arial, sans-serif", size=18, color=INK)
         ),
         legend=dict(
-            orientation="h", 
-            yanchor="bottom", 
-            y=1.02, 
+            # Keep the legend out of the title area.  This reserved bottom
+            # margin also applies when Plotly opens the figure full-screen.
+            orientation="h",
+            yanchor="top",
+            y=-0.20,
             xanchor="left", 
             x=0,
             font=dict(family="Arial, sans-serif", color=INK)
         ),
-        margin=dict(t=60, l=10, r=10, b=10),
+        margin=dict(t=70, l=18, r=18, b=78),
         yaxis=dict(
             tickformat=".0%", 
             gridcolor="rgba(0,0,0,0.10)", 
@@ -527,20 +545,24 @@ def main():
         # Create two columns: left for report, right for chart
         col_left, col_right = st.columns([1, 1], gap="large")
         
-        # Left column: report body
+        # Give each primary area a crisp report-panel boundary.
         with col_left:
-            render_report_body(primary, guardrail_checks, recommendation)
+            with st.container(border=True):
+                render_report_body(primary, guardrail_checks, recommendation)
         
-        # Right column: chart with some vertical spacing
         with col_right:
-            st.markdown("<div style='margin-top: 100px;'></div>", unsafe_allow_html=True)
-            fig = render_trend_chart(df)
-            st.plotly_chart(fig, width="stretch")
-            st.caption(
-                "Shown for illustration of trend stability. Per the pre-registered "
-                "decision rule, the ship/no-ship recommendation is based on the "
-                "full, final sample only — not on interim trends."
-            )
+            with st.container(border=True):
+                st.markdown(
+                    "<div class='section-label' style='margin-top:0;'>Trend stability</div>",
+                    unsafe_allow_html=True,
+                )
+                fig = render_trend_chart(df)
+                st.plotly_chart(fig, width="stretch")
+                st.caption(
+                    "Shown for illustration of trend stability. Per the pre-registered "
+                    "decision rule, the ship/no-ship recommendation is based on the "
+                    "full, final sample only — not on interim trends."
+                )
             
     except Exception as e:
         st.error(f"An error occurred during analysis: {str(e)}")
