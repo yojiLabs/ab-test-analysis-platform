@@ -44,6 +44,10 @@ venv\Scripts\Activate.ps1        # Windows PowerShell
 pip install -r requirements.txt
 streamlit run app/app.py
 ```
+or go to
+https://ab-test-analysis-platform-yojilabs.streamlit.app/
+
+```
 
 ## Case study
 
@@ -55,6 +59,6 @@ See [`reports/case_study.md`](reports/case_study.md) for the full write-up: hypo
 - [x] Define hypothesis and metrics
 - [x] Generate/source experiment data
 - [x] Sample size / power analysis
-- [ ] Core analysis script
-- [ ] Streamlit app
+- [x] Core analysis script
+- [x] Streamlit app
 - [ ] Case study write-up
