@@ -52,9 +52,9 @@ See [`reports/case_study.md`](reports/case_study.md) for the full write-up: hypo
 ## Roadmap
 
 - [x] Project setup
-- [ ] Define hypothesis and metrics
-- [ ] Generate/source experiment data
-- [ ] Sample size / power analysis
+- [x] Define hypothesis and metrics
+- [x] Generate/source experiment data
+- [x] Sample size / power analysis
 - [ ] Core analysis script
 - [ ] Streamlit app
 - [ ] Case study write-up
