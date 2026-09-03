@@ -1,0 +1,102 @@
+{
+  "primary_metric": {
+    "metric_name": "day7_activated",
+    "n_control": 9829,
+    "n_treatment": 9767,
+    "rate_control": 0.37786143046088105,
+    "rate_treatment": 0.4305313811815296,
+    "ci_control": [
+      0.3683256547471612,
+      0.38749263948088725
+    ],
+    "ci_treatment": [
+      0.4207407368853064,
+      0.4403766493992742
+    ],
+    "absolute_lift": 0.05266995072064856,
+    "relative_lift": 0.13938959225451122,
+    "diff_ci": [
+      0.038947473754471836,
+      0.06639242768682528
+    ],
+    "z_stat": 7.512441051671762,
+    "p_value": 5.803487737529157e-14,
+    "alpha": 0.05,
+    "is_significant": true
+  },
+  "guardrails": {
+    "retained_30d": {
+      "metric_name": "retained_30d",
+      "n_control": 9829,
+      "n_treatment": 9767,
+      "rate_control": 0.38793366568318244,
+      "rate_treatment": 0.41629978499027337,
+      "ci_control": [
+        0.3783460113987099,
+        0.39760888330532634
+      ],
+      "ci_treatment": [
+        0.4065584613976541,
+        0.426106922961439
+      ],
+      "absolute_lift": 0.02836611930709093,
+      "relative_lift": 0.07312105603708281,
+      "diff_ci": [
+        0.014641288699933789,
+        0.042090949914248076
+      ],
+      "z_stat": 4.049255089973917,
+      "p_value": 5.1380916144817885e-05,
+      "alpha": 0.05,
+      "is_significant": true
+    },
+    "had_support_ticket": {
+      "metric_name": "had_support_ticket",
+      "n_control": 9829,
+      "n_treatment": 9767,
+      "rate_control": 0.08190049852477363,
+      "rate_treatment": 0.09747107607248899,
+      "ci_control": [
+        0.07664141138353346,
+        0.08748626885817064
+      ],
+      "ci_treatment": [
+        0.09174621202997009,
+        0.10351245293366797
+      ],
+      "absolute_lift": 0.015570577547715361,
+      "relative_lift": 0.1901157847409867,
+      "diff_ci": [
+        0.007571377703157325,
+        0.023569777392273398
+      ],
+      "z_stat": 3.8146312751031135,
+      "p_value": 0.00013638642126400152,
+      "alpha": 0.05,
+      "is_significant": true
+    }
+  },
+  "guardrail_checks": [
+    {
+      "metric_name": "retained_30d",
+      "failed": false,
+      "absolute_lift": 0.02836611930709093,
+      "p_value": 5.1380916144817885e-05,
+      "reason": "retained_30d moved up by 2.84% (p=0.0001); this direction is not a guardrail concern."
+    },
+    {
+      "metric_name": "had_support_ticket",
+      "failed": true,
+      "absolute_lift": 0.015570577547715361,
+      "p_value": 0.00013638642126400152,
+      "reason": "had_support_ticket moved up by 1.56% (p=0.0001); this direction is a guardrail failure."
+    }
+  ],
+  "recommendation": {
+    "decision": "DO NOT SHIP",
+    "reason": "One or more guardrail metrics regressed significantly."
+  },
+  "mde_absolute": 0.05,
+  "true_lift_ground_truth": 0.05,
+  "truth_recovered_within_ci": true
+}

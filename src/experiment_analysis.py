@@ -83,7 +83,7 @@ def analyze_binary_metric(
         z_stat=z_stat,
         p_value=p_value,
         alpha=alpha,
-        is_significant=p_value < alpha,
+        is_significant=bool(p_value < alpha),
     )
 
 
@@ -111,12 +111,12 @@ def check_guardrail(result: MetricResult, bad_direction: str) -> dict:
     if bad_direction not in ("increase", "decrease"):
         raise ValueError("bad_direction must be 'increase' or 'decrease'")
 
-    moved_in_bad_direction = (
+    moved_in_bad_direction = bool(
         result.absolute_lift > 0 if bad_direction == "increase"
         else result.absolute_lift < 0
     )
 
-    failed = result.is_significant and moved_in_bad_direction
+    failed = bool(result.is_significant and moved_in_bad_direction)
 
     return {
         "metric_name": result.metric_name,
