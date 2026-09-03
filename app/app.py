@@ -74,6 +74,45 @@ html, body, [data-testid="stAppViewContainer"], .main, .block-container {
 #MainMenu, footer, [data-testid="stToolbar"] { visibility: hidden; }
 header[data-testid="stHeader"] { background-color: var(--paper) !important; }
 
+/* Keep the native sidebar control easy to find in either sidebar state. */
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebarCollapsedControl"],
+[data-testid="stExpandSidebarButton"] {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    margin: 0.45rem !important;
+    background: var(--ink) !important;
+    border: 1px solid var(--ink) !important;
+    border-radius: 0 !important;
+    box-shadow: 3px 3px 0 var(--hairline);
+}
+[data-testid="stSidebarCollapseButton"] svg,
+[data-testid="stSidebarCollapsedControl"] svg,
+[data-testid="stExpandSidebarButton"] svg {
+    fill: var(--paper) !important;
+    color: var(--paper) !important;
+}
+[data-testid="stSidebarCollapseButton"] [data-testid="stIconMaterial"],
+[data-testid="stSidebarCollapsedControl"] [data-testid="stIconMaterial"],
+[data-testid="stExpandSidebarButton"] [data-testid="stIconMaterial"] {
+    color: var(--paper) !important;
+    font-family: "Material Symbols Rounded" !important;
+    font-size: 1.35rem !important;
+    line-height: 1 !important;
+}
+[data-testid="stSidebarCollapseButton"]:hover,
+[data-testid="stSidebarCollapsedControl"]:hover,
+[data-testid="stExpandSidebarButton"]:hover {
+    background: var(--slate) !important;
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 var(--hairline);
+}
+
 h1, h2, h3 { 
     font-family: 'Arial', sans-serif !important; 
     color: var(--ink) !important;
@@ -287,14 +326,59 @@ h1, h2, h3 {
     font-family: 'Arial', sans-serif !important;
 }
 
+/* Material icons must retain their icon font rather than displaying words. */
+[data-testid="stIconMaterial"] {
+    font-family: "Material Symbols Rounded" !important;
+}
+
 /* Radio buttons in sidebar */
 [data-testid="stSidebar"] .stRadio [role="radiogroup"] label {
+    min-height: 2.55rem;
+    margin: 0.3rem 0 !important;
+    padding: 0.55rem 0.7rem !important;
     background-color: transparent !important;
-    border: 1px solid #FFFFFF !important;
+    border: 0 !important;
+    border-left: 3px solid transparent !important;
     font-family: 'Arial', sans-serif !important;
+    font-size: 0.92rem !important;
+    transition: background-color 120ms ease, border-color 120ms ease;
 }
 [data-testid="stSidebar"] .stRadio [role="radiogroup"] label:hover {
-    background-color: #333333 !important;
+    background-color: #1F1F1F !important;
+}
+[data-testid="stSidebar"] .stRadio [role="radiogroup"] label:has(input:checked) {
+    background-color: #252525 !important;
+    border-left-color: #FFFFFF !important;
+    font-weight: 700 !important;
+}
+[data-testid="stSidebar"] .stRadio input[type="radio"] {
+    accent-color: #FFFFFF !important;
+    margin-right: 0.15rem !important;
+}
+
+/* The upload control belongs to the dark sidebar, not the white page canvas. */
+[data-testid="stSidebar"] [data-testid="stFileUploader"] {
+    margin-top: 1.15rem;
+    padding: 0.75rem !important;
+    background-color: #151515 !important;
+    border: 1px dashed #777777 !important;
+    border-radius: 0 !important;
+}
+[data-testid="stSidebar"] [data-testid="stFileUploader"] * {
+    color: #FFFFFF !important;
+}
+[data-testid="stSidebar"] [data-testid="stFileUploader"] button {
+    min-height: 2rem;
+    padding: 0.3rem 0.65rem;
+    background-color: #FFFFFF !important;
+    border: 1px solid #FFFFFF !important;
+    border-radius: 0 !important;
+}
+[data-testid="stSidebar"] [data-testid="stFileUploader"] button * {
+    color: #000000 !important;
+}
+[data-testid="stSidebar"] [data-testid="stFileUploader"] [data-testid="stIconMaterial"] {
+    font-family: "Material Symbols Rounded" !important;
 }
 </style>
 """
@@ -515,6 +599,71 @@ def render_trend_chart(df: pd.DataFrame):
     return fig
 
 
+def render_metric_impact_chart(primary, retention, tickets):
+    """Show treatment-minus-control effects and their 95% confidence intervals."""
+    metrics = [
+        ("Day-7 activation", primary, INK),
+        ("30-day retention", retention, SLATE),
+        ("Support tickets", tickets, RUST),
+    ]
+
+    fig = go.Figure()
+    for label, result, color in metrics:
+        lower, upper = result.diff_ci
+        fig.add_trace(go.Scatter(
+            x=[result.absolute_lift],
+            y=[label],
+            mode="markers",
+            marker=dict(color=color, size=12, line=dict(color=PAPER, width=1)),
+            error_x=dict(
+                type="data",
+                array=[upper - result.absolute_lift],
+                arrayminus=[result.absolute_lift - lower],
+                color=color,
+                thickness=2,
+                width=5,
+            ),
+            hovertemplate=(
+                f"<b>{label}</b><br>"
+                "Absolute lift: %{x:.2%}<extra></extra>"
+            ),
+            showlegend=False,
+        ))
+
+    bounds = [0.0]
+    for _, result, _ in metrics:
+        bounds.extend(result.diff_ci)
+    padding = max(0.01, (max(bounds) - min(bounds)) * 0.15)
+
+    fig.update_layout(
+        paper_bgcolor=PAPER,
+        plot_bgcolor=PAPER,
+        font=dict(family="Arial, sans-serif", color=INK, size=13),
+        margin=dict(t=12, l=18, r=24, b=34),
+        height=260,
+        hoverlabel=dict(font=dict(family="Arial, sans-serif")),
+        xaxis=dict(
+            title="Treatment lift vs. control (percentage points)",
+            tickformat=".0%",
+            range=[min(bounds) - padding, max(bounds) + padding],
+            gridcolor="rgba(0,0,0,0.10)",
+            zeroline=False,
+            linecolor=INK,
+            linewidth=1,
+        ),
+        yaxis=dict(
+            categoryorder="array",
+            categoryarray=[label for label, _, _ in metrics],
+            autorange="reversed",
+            showgrid=False,
+            linecolor=INK,
+            linewidth=1,
+        ),
+    )
+    fig.add_vline(x=0, line_color=INK, line_width=1, line_dash="dot")
+    return fig
+
+
 # ---------------------------------------------------------------------------
 # Main app
 # ---------------------------------------------------------------------------
@@ -562,6 +711,18 @@ def main():
                     "Shown for illustration of trend stability. Per the pre-registered "
                     "decision rule, the ship/no-ship recommendation is based on the "
                     "full, final sample only — not on interim trends."
+                )
+
+            with st.container(border=True):
+                st.markdown(
+                    "<div class='section-label' style='margin-top:0;'>Metric impact</div>",
+                    unsafe_allow_html=True,
+                )
+                impact_fig = render_metric_impact_chart(primary, retention, tickets)
+                st.plotly_chart(impact_fig, width="stretch")
+                st.caption(
+                    "Points show treatment minus control; whiskers show 95% confidence "
+                    "intervals. The dotted line marks no measurable difference."
                 )
             
     except Exception as e:
